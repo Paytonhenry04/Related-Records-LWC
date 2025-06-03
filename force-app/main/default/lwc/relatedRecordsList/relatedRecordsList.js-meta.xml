@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>57.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Related Records List</masterLabel>
+    <description>Generic LWC to show top N related records in a datatable style.</description>
+    <targets>
+        <target>lightning__RecordPage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordPage">
+            <!-- Child Object API Name -->
+            <property name="childObjectApiName" type="String"
+                      label="Child Object API Name"
+                      description="e.g. Product2" />
+            <!-- Lookup Field API Name -->
+            <property name="lookupFieldApiName" type="String"
+                      label="Lookup Field API Name"
+                      description="e.g. Company__c" />
+            <!-- Child Relationship API Name -->
+            <property name="childRelationshipName" type="String"
+                      label="Child Relationship API Name"
+                      description="e.g. Products" />
+            <!-- Fields to Show (at least one required) -->
+            <property name="fieldsList" type="String"
+                      label="Fields to Show (comma-separated)"
+                      description="e.g. Name,ProductCode,ProductDescription" />
+            <!-- Record Limit -->
+            <property name="recordLimit" type="Integer"
+                      label="Number of Records to Display"
+                      description="Number of related records to fetch/display" default="3" />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

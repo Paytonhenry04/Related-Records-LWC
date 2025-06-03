@@ -1,0 +1,45 @@
+<template>
+    <lightning-card 
+        title={cardTitle} 
+        icon-name="standard:related_list"
+        class="slds-card_boundary"
+    >
+        <!-- 1) If we have at least one record, show the datatable: -->
+        <template if:true={hasRecords}>
+            <lightning-datatable
+                key-field="Id"
+                data={tableData}
+                columns={columns}
+                hide-checkbox-column
+                class="slds-p-around_small"
+            ></lightning-datatable>
+
+            <div class="slds-p-horizontal_small slds-p-vertical_x-small">
+                <lightning-button 
+                    label="View All" 
+                    variant="neutral" 
+                    onclick={handleViewAll}
+                ></lightning-button>
+            </div>
+        </template>
+
+        <!-- 2) If there was an error, show the actual error text: -->
+        <template if:true={error}>
+            <div class="slds-p-around_small">
+                <!-- Use lightning-formatted-text so special characters won’t break the page -->
+                <lightning-formatted-text 
+                    value={error}
+                ></lightning-formatted-text>
+            </div>
+        </template>
+
+        <!-- 3) If there are no records AND no error, show “No related records found.” -->
+        <template if:true={noRecordsNoError}>
+            <div class="slds-p-around_small">
+                <lightning-formatted-text 
+                    value="No related records found."
+                ></lightning-formatted-text>
+            </div>
+        </template>
+    </lightning-card>
+</template>
