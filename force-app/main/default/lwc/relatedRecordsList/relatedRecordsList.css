@@ -1,12 +1,12 @@
 /* relatedRecordsList.css */
 
-/* 1) Ensure component spans full width */
+/* 1) Host ensures the component spans full width */
 :host {
     display: block;
     margin: 1rem 0;
 }
 
-/* 2) Card container styling */
+/* 2) Card container styling: border, rounded corners, shadow, white bg */
 .custom-card-container {
     border: 2px solid #2E86C1;
     border-radius: 1rem;
@@ -15,10 +15,15 @@
     overflow: hidden;
 }
 
-/* 3) Card header */
+/* 3) Clickable header: dark blue bg, white text, pointer cursor */
 .custom-card-header {
     background-color: #2E86C1;
     padding: 0.75rem 1rem;
+    cursor: pointer;
+}
+
+.custom-card-header:hover {
+    background-color: #1f5a8c;
 }
 
 .custom-card-title {
@@ -28,60 +33,59 @@
     font-family: Arial, sans-serif;
 }
 
-/* 4) Card body */
+/* 4) Card body padding */
 .custom-card-body {
     padding: 0.75rem 1rem;
 }
 
-/* 5) Datatable header row: keep as wide as header text */
-.custom-datatable .slds-table thead th {
-    background-color: #2E86C1 !important;
-    color: #ffffff !important;
+/* 5) Grid layout for two mini‐cards */
+.record-card-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem; /* space between cards */
+}
+
+.record-card {
+    background-color: #fdfdfd;
+    border: 1px solid #d5d8dc;
+    border-radius: 0.5rem;
+    flex: 1 1 calc(50% - 1rem); /* two cards per row (minus gap) */
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+}
+
+/* 6) Title link styling within mini‐card */
+.record-card-link {
+    font-size: 1rem;
     font-weight: 600;
-    border-bottom: 2px solid #1B4F72;
-    padding: 0.75rem 1rem !important;
-    white-space: nowrap !important; /* Prevent header from wrapping */
+    color: #2E86C1;
+    text-decoration: none;
 }
 
-/* 6) Datatable body rows: alternating background and hover */
-.custom-datatable .slds-table tbody tr:nth-child(odd) {
-    background-color: #f9fbfc;
+.record-card-link:hover {
+    text-decoration: underline;
 }
 
-.custom-datatable .slds-table tbody tr:hover {
-    background-color: #ebf5fb;
+/* 7) Additional fields inside the mini‐card */
+.record-card-field {
+    margin-top: 0.5rem;
 }
 
-/* 7) Datatable body cells: allow wrapping but no forced expansion */
-.custom-datatable .slds-table tbody td {
-    padding: 0.5rem 1rem !important;
+.field-label {
+    font-weight: 500;
+    margin-right: 0.25rem;
+    color: #566573;
+}
+
+.field-value {
     color: #17202a;
-    white-space: normal !important;   /* Wrap long text */
     word-wrap: break-word;
+    white-space: normal;
 }
 
-/* 8) Card footer (toggle button) */
-.custom-card-footer {
-    text-align: right;
-    padding-top: 0.5rem;
-}
-
-/* 9) Toggle button styling */
-.custom-view-all-btn .slds-button__container {
-    background-color: #d35400 !important;
-    border-color: #d35400 !important;
-    color: #ffffff !important;
-    font-weight: 500 !important;
-    transition: transform 0.2s ease;
-}
-
-.custom-view-all-btn .slds-button__container:hover,
-.custom-view-all-btn .slds-button__container:focus {
-    background-color: #e67e22 !important;
-    transform: translateY(-2px);
-}
-
-/* 10) “No data” / error message */
+/* 8) “No data” / error message: centered and italic */
 .custom-no-data {
     text-align: center;
     font-style: italic;
@@ -89,16 +93,9 @@
     padding: 2rem 1rem;
 }
 
-/* 11) Optional: limit table height and show scrollbar if many rows */
-.custom-datatable .slds-scrollable_y {
-    max-height: 400px;  /* adjust as needed */
-}
-
-.custom-datatable .slds-scrollable_y::-webkit-scrollbar {
-    width: 8px;
-}
-
-.custom-datatable .slds-scrollable_y::-webkit-scrollbar-thumb {
-    background-color: #aab7b8;
-    border-radius: 4px;
+/* 9) Responsive: single‐column on narrow screens */
+@media (max-width: 600px) {
+    .record-card {
+        flex: 1 1 100%;
+    }
 }

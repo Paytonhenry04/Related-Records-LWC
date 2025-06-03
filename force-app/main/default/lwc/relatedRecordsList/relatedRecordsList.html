@@ -1,40 +1,43 @@
 <template>
     <div class="custom-card-container">
-        <!-- Card header -->
-        <div class="custom-card-header">
+        <!-- Clickable header/navigation -->
+        <div class="custom-card-header" onclick={handleHeaderClick}>
             <span class="custom-card-title">{cardTitle}</span>
         </div>
 
         <div class="custom-card-body">
-            <!-- If there are records, render the datatable + toggle button -->
+            <!-- If there are records, show up to two “mini‐cards” -->
             <template if:true={hasRecords}>
-                <lightning-datatable
-                    key-field="Id"
-                    data={displayedData}
-                    columns={columns}
-                    hide-checkbox-column
-                    column-widths-mode="fixed"
-                    class="custom-datatable"
-                ></lightning-datatable>
+                <div class="record-card-grid">
+                    <template for:each={displayedData} for:item="rec">
+                        <div key={rec.Id} class="record-card">
+                            <!-- Title as clickable link -->
+                            <lightning-formatted-url
+                                value={rec.url}
+                                label={rec.title}
+                                class="record-card-link"
+                            ></lightning-formatted-url>
 
-                <div class="custom-card-footer">
-                    <lightning-button
-                        label={toggleLabel}
-                        variant="neutral"
-                        onclick={handleToggle}
-                        class="custom-view-all-btn"
-                    ></lightning-button>
+                            <!-- Each additional field under the title -->
+                            <template for:each={rec.fields} for:item="fld">
+                                <div key={fld.label} class="record-card-field">
+                                    <span class="field-label">{fld.label}:</span>
+                                    <span class="field-value">{fld.value}</span>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
                 </div>
             </template>
 
-            <!-- If there was an error, show it -->
+            <!-- Error message -->
             <template if:true={error}>
                 <div class="custom-no-data">
                     <lightning-formatted-text value={error}></lightning-formatted-text>
                 </div>
             </template>
 
-            <!-- If no records and no error, show “No related records found.” -->
+            <!-- “No related records” message -->
             <template if:true={noRecordsNoError}>
                 <div class="custom-no-data">
                     <lightning-formatted-text value="No related records found."></lightning-formatted-text>

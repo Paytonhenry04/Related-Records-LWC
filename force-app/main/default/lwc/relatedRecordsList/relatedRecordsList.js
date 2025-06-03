@@ -1,21 +1,35 @@
 import { LightningElement, api, track } from 'lwc';
 import getRelatedRecords from '@salesforce/apex/RelatedRecordsController.getRelatedRecords';
+import { NavigationMixin } from 'lightning/navigation';
 
-export default class RelatedRecordsList extends LightningElement {
+export default class RelatedRecordsList extends NavigationMixin(LightningElement) {
     @api recordId;
-    @api childObjectApiName;
-    @api lookupFieldApiName;
-    @api childRelationshipName;
-    @api fieldsList;        // e.g. 'Name,ProductCode,ProductDescription'
-    @api recordLimit = 2;   // Number of rows to show when collapsed (e.g. 2)
+    @api childObjectApiName;    // e.g. 'Product2'
+    @api lookupFieldApiName;    // e.g. 'Company__c'
+    @api childRelationshipName; // e.g. 'Products'
+    @api fieldsList;            // e.g. 'Name,ProductCode,ProductDescription'
+    @api recordLimit = 2;       // Show exactly 2 cards here
 
     @track tableData = [];
-    @track columns = [];
     @track error;
-    @track showAll = false;  // controls collapse/expand state
+
+    // Convenience getters for splitting fieldsList
+    get fieldsArray() {
+        return (this.fieldsList || '')
+            .split(',')
+            .map(f => f.trim())
+            .filter(f => f);
+    }
+    get firstField() {
+        return this.fieldsArray.length > 0 ? this.fieldsArray[0] : null;
+    }
+    get additionalFields() {
+        return this.fieldsArray.length > 1 
+            ? this.fieldsArray.slice(1) 
+            : [];
+    }
 
     connectedCallback() {
-        this.buildColumns();
         this.fetchAllRelatedRecords();
     }
 
@@ -34,58 +48,18 @@ export default class RelatedRecordsList extends LightningElement {
         return !this.hasRecords && !this.error;
     }
 
-    // If showAll is false, show only the first `recordLimit` rows;
-    // otherwise show every row fetched.
+    // Only show up to recordLimit (2) in this LWC
     get displayedData() {
         if (!this.hasRecords) {
             return [];
         }
-        return this.showAll 
-            ? this.tableData 
-            : this.tableData.slice(0, this.recordLimit);
+        return this.tableData.slice(0, this.recordLimit);
     }
 
-    get toggleLabel() {
-        return this.showAll ? 'Collapse' : 'View All';
-    }
-
-    buildColumns() {
-        const fields = (this.fieldsList || '')
-            .split(',')
-            .map(f => f.trim())
-            .filter(f => f);
-
-        if (fields.length === 0) {
-            this.columns = [];
-            return;
-        }
-
-        // 1) First field as a clickable link
-        const firstField = fields[0];
-        const firstLabel = this.humanizeLabel(firstField);
-        const linkColumn = {
-            label: firstLabel,
-            fieldName: `${firstField}Url`,
-            type: 'url',
-            typeAttributes: {
-                label: { fieldName: firstField }
-            },
-            sortable: false
-            // No width specified: fixed‐mode will size based on header only
-        };
-
-        // 2) Remaining fields as plain text columns
-        const otherColumns = fields.slice(1).map(f => ({
-            label: this.humanizeLabel(f),
-            fieldName: f,
-            type: 'text',
-            sortable: false
-            // No width specified → fixed mode uses header width
-        }));
-
-        this.columns = [linkColumn, ...otherColumns];
-    }
-
+    // Fetch all related records (up to 200). Build each row with:
+    // - title (value of firstField)
+    // - url  ("/" + Id)
+    // - fields: an array of { label, value } for each additional field
     fetchAllRelatedRecords() {
         if (
             !this.recordId ||
@@ -98,7 +72,6 @@ export default class RelatedRecordsList extends LightningElement {
             return;
         }
 
-        // Always fetch up to 200 records, ignoring recordLimit here.
         getRelatedRecords({
             parentId: this.recordId,
             childObjectApiName: this.childObjectApiName,
@@ -107,13 +80,34 @@ export default class RelatedRecordsList extends LightningElement {
             limitSize: 200
         })
         .then(results => {
-            const fields = this.fieldsList.split(',').map(f => f.trim());
-            const linkField = fields[0]; // e.g. 'Name'
+            const firstField = this.firstField;
+            const addFields = this.additionalFields;
 
-            // Build each row with a clickable link for the first field
+            // For each returned SObject, build a plain JS object:
+            // {
+            //    Id,
+            //    title: rec[firstField],
+            //    url: '/<Id>',
+            //    fields: [
+            //      { label: 'Product Code', value: rec['ProductCode'] },
+            //      { label: 'Product Description', value: rec['ProductDescription'] },
+            //      ...
+            //    ]
+            // }
             this.tableData = results.map(rec => {
-                const row = { ...rec };
-                row[`${linkField}Url`] = '/' + rec.Id;
+                const row = {};
+                row.Id = rec.Id;
+                row.title = rec[firstField];
+                row.url = '/' + rec.Id;
+
+                // Build the fields array with label/value for each additional field
+                row.fields = addFields.map(fld => {
+                    return {
+                        label: this.humanizeLabel(fld),
+                        value: rec[fld]
+                    };
+                });
+
                 return row;
             });
 
@@ -127,10 +121,20 @@ export default class RelatedRecordsList extends LightningElement {
         });
     }
 
-    handleToggle() {
-        this.showAll = !this.showAll;
+    // Navigate to the “full related list” page when the header is clicked
+    handleHeaderClick() {
+        this[NavigationMixin.Navigate]({
+            type: 'standard__recordRelationshipPage',
+            attributes: {
+                recordId: this.recordId,
+                objectApiName: this.childObjectApiName,
+                relationshipApiName: this.childRelationshipName,
+                actionName: 'view'
+            }
+        });
     }
 
+    // Convert an API name (e.g. “ProductCode”) into a human‐readable label (“Product Code”)
     humanizeLabel(apiName) {
         return apiName
             .replace(/__c$|__r$/, '')
