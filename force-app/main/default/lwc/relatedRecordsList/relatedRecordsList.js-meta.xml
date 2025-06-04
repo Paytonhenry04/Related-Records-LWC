@@ -39,6 +39,21 @@
                       label="Number of Records to Display"
                       description="Number of related records to fetch/display"
                       default="2" />
+
+            <property
+                    name="flexipageId"
+                    type="String"
+                    label="Flexipage Id"
+                    description="The flexipage API name (such as Companies_Record_With_Success_Stories) from your dynamicRelatedListViewAll URL."
+                    required="false"
+            />
+            <property
+                name="cmpId"
+                type="String"
+                label="Component Id"
+                description="The componentId (such as lst_dynamicRelatedList3) from your dynamicRelatedListViewAll URL."
+                required="false"
+            />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

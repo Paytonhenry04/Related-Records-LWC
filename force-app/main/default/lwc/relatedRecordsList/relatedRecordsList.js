@@ -1,15 +1,16 @@
 import { LightningElement, api, track } from 'lwc';
 import getRelatedRecords from '@salesforce/apex/RelatedRecordsController.getRelatedRecords';
-import { NavigationMixin } from 'lightning/navigation';
 
-export default class RelatedRecordsList extends NavigationMixin(LightningElement) {
+export default class RelatedRecordsList extends LightningElement {
     @api recordId;
     @api parentObjectApiName;     // e.g. 'Company__c'
     @api childObjectApiName;      // e.g. 'Product2'
     @api lookupFieldApiName;      // e.g. 'Company__c'
     @api childRelationshipName;   // e.g. 'Products__r'
     @api fieldsList;              // e.g. 'Name,Technology_Readiness_Level__c,Interoperability_Tags__c,Status__c'
-    @api recordLimit = 2;         // Show exactly 2 cards here
+    @api recordLimit = 2;
+    @api flexipageId;             // e.g. 'Companies_Record_With_Success_Stories'
+    @api cmpId;                   // e.g. 'lst_dynamicRelatedList3'
 
     @track tableData = [];
     @track error;
@@ -75,15 +76,15 @@ export default class RelatedRecordsList extends NavigationMixin(LightningElement
             limitSize: 200
         })
         .then(results => {
-            const firstField = this.firstField;
-            const addFields = this.additionalFields;
+            const firstFld = this.firstField;
+            const addFlds = this.additionalFields;
 
             this.tableData = results.map(rec => {
                 return {
                     Id: rec.Id,
-                    title: rec[firstField],
+                    title: rec[firstFld],
                     url: '/' + rec.Id,
-                    fields: addFields.map(fld => ({
+                    fields: addFlds.map(fld => ({
                         label: this.humanizeLabel(fld),
                         value: rec[fld]
                     }))
@@ -101,17 +102,16 @@ export default class RelatedRecordsList extends NavigationMixin(LightningElement
     }
 
     handleHeaderClick() {
-        const parent = this.parentObjectApiName;      // e.g. "Company__c"
-        const id     = this.recordId;                 // e.g. "a02Ot00000LMjmrIAD"
-        const rel    = this.childRelationshipName;    // e.g. "Products__r"
-        const url    = `/lightning/r/${parent}/${id}/related/${rel}/view`;
-
-        this[NavigationMixin.Navigate]({
-            type: 'standard__webPage',
-            attributes: {
-                url: url
-            }
-        });
+        if (!this.flexipageId || !this.cmpId) {
+            console.warn('flexipageId or cmpId not configured');
+            return;
+        }
+        const url =
+            '/lightning/cmp/force__dynamicRelatedListViewAll' +
+            `?force__flexipageId=${this.flexipageId}` +
+            `&force__cmpId=${this.cmpId}` +
+            `&force__recordId=${this.recordId}`;
+        window.open(url, '_self');
     }
 
     humanizeLabel(apiName) {
