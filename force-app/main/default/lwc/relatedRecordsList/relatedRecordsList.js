@@ -1,14 +1,17 @@
 import { LightningElement, api, track } from 'lwc';
 import getRelatedRecords from '@salesforce/apex/RelatedRecordsController.getRelatedRecords';
+import { NavigationMixin } from 'lightning/navigation';
 
-export default class RelatedRecordsList extends LightningElement {
+export default class RelatedRecordsList extends NavigationMixin(LightningElement) {
     @api recordId;
     @api parentObjectApiName;     // e.g. 'Company__c'
     @api childObjectApiName;      // e.g. 'Product2'
     @api lookupFieldApiName;      // e.g. 'Company__c'
     @api childRelationshipName;   // e.g. 'Products__r'
-    @api fieldsList;              // e.g. 'Name,Technology_Readiness_Level__c,Interoperability_Tags__c,Status__c'
+    @api fieldsList;              // e.g. 'Name,Status__c'
     @api recordLimit = 2;
+
+    // Optional: if set, use Dynamic Related List URL
     @api flexipageId;             // e.g. 'Companies_Record_With_Success_Stories'
     @api cmpId;                   // e.g. 'lst_dynamicRelatedList3'
 
@@ -90,7 +93,6 @@ export default class RelatedRecordsList extends LightningElement {
                     }))
                 };
             });
-
             this.error = undefined;
         })
         .catch(err => {
@@ -102,16 +104,26 @@ export default class RelatedRecordsList extends LightningElement {
     }
 
     handleHeaderClick() {
-        if (!this.flexipageId || !this.cmpId) {
-            console.warn('flexipageId or cmpId not configured');
-            return;
+        // If both flexipageId and cmpId are set, use Dynamic Related List URL
+        if (this.flexipageId && this.cmpId) {
+            const url =
+                '/lightning/cmp/force__dynamicRelatedListViewAll' +
+                `?force__flexipageId=${this.flexipageId}` +
+                `&force__cmpId=${this.cmpId}` +
+                `&force__recordId=${this.recordId}`;
+            window.open(url, '_self');
+        } else {
+            // Fallback: standard related-list page
+            this[NavigationMixin.Navigate]({
+                type: 'standard__recordRelationshipPage',
+                attributes: {
+                    recordId: this.recordId,
+                    objectApiName: this.parentObjectApiName,
+                    relationshipApiName: this.childRelationshipName,
+                    actionName: 'view'
+                }
+            });
         }
-        const url =
-            '/lightning/cmp/force__dynamicRelatedListViewAll' +
-            `?force__flexipageId=${this.flexipageId}` +
-            `&force__cmpId=${this.cmpId}` +
-            `&force__recordId=${this.recordId}`;
-        window.open(url, '_self');
     }
 
     humanizeLabel(apiName) {
