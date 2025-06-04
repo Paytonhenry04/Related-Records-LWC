@@ -9,26 +9,36 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightning__RecordPage">
+            <!-- Parent Object API Name -->
+            <property name="parentObjectApiName" type="String"
+                      label="Parent Object API Name"
+                      description="e.g. Company__c" />
+
             <!-- Child Object API Name -->
             <property name="childObjectApiName" type="String"
                       label="Child Object API Name"
                       description="e.g. Product2" />
+
             <!-- Lookup Field API Name -->
             <property name="lookupFieldApiName" type="String"
                       label="Lookup Field API Name"
                       description="e.g. Company__c" />
+
             <!-- Child Relationship API Name -->
             <property name="childRelationshipName" type="String"
                       label="Child Relationship API Name"
-                      description="e.g. Products" />
+                      description="e.g. Products__r" />
+
             <!-- Fields to Show (at least one required) -->
             <property name="fieldsList" type="String"
                       label="Fields to Show (comma-separated)"
-                      description="e.g. Name,ProductCode,ProductDescription" />
+                      description="e.g. Name,Technology_Readiness_Level__c,Interoperability_Tags__c,Status__c" />
+
             <!-- Record Limit -->
             <property name="recordLimit" type="Integer"
                       label="Number of Records to Display"
-                      description="Number of related records to fetch/display" default="3" />
+                      description="Number of related records to fetch/display"
+                      default="2" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

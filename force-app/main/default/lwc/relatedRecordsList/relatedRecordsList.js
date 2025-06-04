@@ -4,16 +4,16 @@ import { NavigationMixin } from 'lightning/navigation';
 
 export default class RelatedRecordsList extends NavigationMixin(LightningElement) {
     @api recordId;
-    @api childObjectApiName;    // e.g. 'Product2'
-    @api lookupFieldApiName;    // e.g. 'Company__c'
-    @api childRelationshipName; // e.g. 'Products'
-    @api fieldsList;            // e.g. 'Name,ProductCode,ProductDescription'
-    @api recordLimit = 2;       // Show exactly 2 cards here
+    @api parentObjectApiName;     // e.g. 'Company__c'
+    @api childObjectApiName;      // e.g. 'Product2'
+    @api lookupFieldApiName;      // e.g. 'Company__c'
+    @api childRelationshipName;   // e.g. 'Products__r'
+    @api fieldsList;              // e.g. 'Name,Technology_Readiness_Level__c,Interoperability_Tags__c,Status__c'
+    @api recordLimit = 2;         // Show exactly 2 cards here
 
     @track tableData = [];
     @track error;
 
-    // Convenience getters for splitting fieldsList
     get fieldsArray() {
         return (this.fieldsList || '')
             .split(',')
@@ -24,8 +24,8 @@ export default class RelatedRecordsList extends NavigationMixin(LightningElement
         return this.fieldsArray.length > 0 ? this.fieldsArray[0] : null;
     }
     get additionalFields() {
-        return this.fieldsArray.length > 1 
-            ? this.fieldsArray.slice(1) 
+        return this.fieldsArray.length > 1
+            ? this.fieldsArray.slice(1)
             : [];
     }
 
@@ -48,7 +48,6 @@ export default class RelatedRecordsList extends NavigationMixin(LightningElement
         return !this.hasRecords && !this.error;
     }
 
-    // Only show up to recordLimit (2) in this LWC
     get displayedData() {
         if (!this.hasRecords) {
             return [];
@@ -56,10 +55,6 @@ export default class RelatedRecordsList extends NavigationMixin(LightningElement
         return this.tableData.slice(0, this.recordLimit);
     }
 
-    // Fetch all related records (up to 200). Build each row with:
-    // - title (value of firstField)
-    // - url  ("/" + Id)
-    // - fields: an array of { label, value } for each additional field
     fetchAllRelatedRecords() {
         if (
             !this.recordId ||
@@ -83,58 +78,42 @@ export default class RelatedRecordsList extends NavigationMixin(LightningElement
             const firstField = this.firstField;
             const addFields = this.additionalFields;
 
-            // For each returned SObject, build a plain JS object:
-            // {
-            //    Id,
-            //    title: rec[firstField],
-            //    url: '/<Id>',
-            //    fields: [
-            //      { label: 'Product Code', value: rec['ProductCode'] },
-            //      { label: 'Product Description', value: rec['ProductDescription'] },
-            //      ...
-            //    ]
-            // }
             this.tableData = results.map(rec => {
-                const row = {};
-                row.Id = rec.Id;
-                row.title = rec[firstField];
-                row.url = '/' + rec.Id;
-
-                // Build the fields array with label/value for each additional field
-                row.fields = addFields.map(fld => {
-                    return {
+                return {
+                    Id: rec.Id,
+                    title: rec[firstField],
+                    url: '/' + rec.Id,
+                    fields: addFields.map(fld => ({
                         label: this.humanizeLabel(fld),
                         value: rec[fld]
-                    };
-                });
-
-                return row;
+                    }))
+                };
             });
 
             this.error = undefined;
         })
         .catch(err => {
-            this.error = err.body && err.body.message 
-                ? err.body.message 
+            this.error = err.body && err.body.message
+                ? err.body.message
                 : JSON.stringify(err);
             this.tableData = [];
         });
     }
 
-    // Navigate to the “full related list” page when the header is clicked
     handleHeaderClick() {
+        const parent = this.parentObjectApiName;      // e.g. "Company__c"
+        const id     = this.recordId;                 // e.g. "a02Ot00000LMjmrIAD"
+        const rel    = this.childRelationshipName;    // e.g. "Products__r"
+        const url    = `/lightning/r/${parent}/${id}/related/${rel}/view`;
+
         this[NavigationMixin.Navigate]({
-            type: 'standard__recordRelationshipPage',
+            type: 'standard__webPage',
             attributes: {
-                recordId: this.recordId,
-                objectApiName: this.childObjectApiName,
-                relationshipApiName: this.childRelationshipName,
-                actionName: 'view'
+                url: url
             }
         });
     }
 
-    // Convert an API name (e.g. “ProductCode”) into a human‐readable label (“Product Code”)
     humanizeLabel(apiName) {
         return apiName
             .replace(/__c$|__r$/, '')
