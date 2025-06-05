@@ -8,28 +8,28 @@
 
 /* 2) Card container styling: border, rounded corners, shadow, white bg */
 .custom-card-container {
-    border: 2px solid #2E86C1;
+    border: 2px solid #cccccc; /* changed from blue to grey */
     border-radius: 1rem;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
     background-color: #ffffff;
     overflow: hidden;
 }
 
-/* 3) Clickable header: dark blue bg, white text, pointer cursor */
+/* 3) Clickable header: light grey bg, black text, pointer cursor */
 .custom-card-header {
-    background-color: #2E86C1;
+    background-color: #e6e6e6de; /* changed from dark blue to grey */
     padding: 0.75rem 1rem;
     cursor: pointer;
 }
 
 .custom-card-header:hover {
-    background-color: #1f5a8c;
+    background-color: #c7c7c7; /* dark grey on hover */
 }
 
 .custom-card-title {
-    color: #ffffff;
+    color: #000000; /* changed text to black */
     font-size: 1.25rem;
-    font-weight: 600;
+    font-weight: 400;
     font-family: Arial, sans-serif;
 }
 
@@ -60,7 +60,7 @@
 .record-card-link {
     font-size: 1rem;
     font-weight: 600;
-    color: #2E86C1;
+    color: #555555; /* changed link color from blue to medium grey */
     text-decoration: none;
 }
 
