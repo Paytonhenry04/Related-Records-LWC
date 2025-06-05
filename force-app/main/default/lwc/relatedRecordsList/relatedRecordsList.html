@@ -1,48 +1,63 @@
 <template>
     <div class="custom-card-container">
-        <!-- Clickable header/navigation -->
-        <div class="custom-card-header" onclick={handleHeaderClick}>
-            <span class="custom-card-title">{cardTitle}</span>
+        <!-- Header: white background, dividing border below, contains chevron + title -->
+        <div class="custom-card-header">
+            <!-- Clicking this toggles collapse/expand -->
+            <lightning-icon
+                icon-name={collapseIconName}
+                alternative-text="Toggle"
+                class="collapse-icon"
+                size="small"
+                onclick={toggleCollapse}
+            ></lightning-icon>
+
+            <!-- Clicking this navigates to the related list page -->
+            <span class="custom-card-title" onclick={handleHeaderClick}>
+                {cardTitle}
+            </span>
         </div>
 
-        <div class="custom-card-body">
-            <!-- If there are records, show up to two “mini‐cards” -->
-            <template if:true={hasRecords}>
-                <div class="record-card-grid">
-                    <template for:each={displayedData} for:item="rec">
-                        <div key={rec.Id} class="record-card">
-                            <!-- Title as clickable link -->
-                            <lightning-formatted-url
-                                value={rec.url}
-                                label={rec.title}
-                                class="record-card-link"
-                            ></lightning-formatted-url>
+        <!-- Body: only rendered when isCollapsed = false -->
+        <template if:false={isCollapsed}>
+            <div class="custom-card-body">
+                <!-- If there are records, show up to recordLimit mini‐cards -->
+                <template if:true={hasRecords}>
+                    <div class="record-card-grid">
+                        <template for:each={displayedData} for:item="rec">
+                            <div key={rec.Id} class="record-card">
+                                <!-- Title link inside mini‐card -->
+                                <lightning-formatted-url
+                                    value={rec.url}
+                                    label={rec.title}
+                                    class="record-card-link"
+                                ></lightning-formatted-url>
 
-                            <!-- Each additional field under the title -->
-                            <template for:each={rec.fields} for:item="fld">
-                                <div key={fld.label} class="record-card-field">
-                                    <span class="field-label">{fld.label}:</span>
-                                    <span class="field-value">{fld.value}</span>
-                                </div>
-                            </template>
-                        </div>
-                    </template>
-                </div>
-            </template>
+                                <!-- Render each additional field -->
+                                <template for:each={rec.fields} for:item="fld">
+                                    <div key={fld.label} class="record-card-field">
+                                        <span class="field-label">{fld.label}:</span>
+                                        <span class="field-value">{fld.value}</span>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </template>
 
-            <!-- Error message -->
-            <template if:true={error}>
-                <div class="custom-no-data">
-                    <lightning-formatted-text value={error}></lightning-formatted-text>
-                </div>
-            </template>
+                <!-- Error message if Apex call fails -->
+                <template if:true={error}>
+                    <div class="custom-no-data">
+                        <lightning-formatted-text value={error}></lightning-formatted-text>
+                    </div>
+                </template>
 
-            <!-- “No related records” message -->
-            <template if:true={noRecordsNoError}>
-                <div class="custom-no-data">
-                    <lightning-formatted-text value="No related records found."></lightning-formatted-text>
-                </div>
-            </template>
-        </div>
+                <!-- “No related records” message when none found -->
+                <template if:true={noRecordsNoError}>
+                    <div class="custom-no-data">
+                        <lightning-formatted-text value="No related records found."></lightning-formatted-text>
+                    </div>
+                </template>
+            </div>
+        </template>
     </div>
 </template>

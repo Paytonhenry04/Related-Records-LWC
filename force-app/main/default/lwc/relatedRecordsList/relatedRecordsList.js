@@ -10,13 +10,19 @@ export default class RelatedRecordsList extends NavigationMixin(LightningElement
     @api childRelationshipName;   // e.g. 'Products__r'
     @api fieldsList;              // e.g. 'Name,Status__c'
     @api recordLimit = 2;
-
-    // Optional: if set, use Dynamic Related List URL
     @api flexipageId;             // e.g. 'Companies_Record_With_Success_Stories'
     @api cmpId;                   // e.g. 'lst_dynamicRelatedList3'
 
     @track tableData = [];
     @track error;
+    @track isCollapsed = false;   // whether the section is folded
+
+    // Compute the icon name (cannot do ternary inside the template)
+    get collapseIconName() {
+        return this.isCollapsed 
+            ? 'utility:chevronright' 
+            : 'utility:chevrondown';
+    }
 
     get fieldsArray() {
         return (this.fieldsList || '')
@@ -103,8 +109,12 @@ export default class RelatedRecordsList extends NavigationMixin(LightningElement
         });
     }
 
+    toggleCollapse() {
+        this.isCollapsed = !this.isCollapsed;
+    }
+
     handleHeaderClick() {
-        // If both flexipageId and cmpId are set, use Dynamic Related List URL
+        // If dynamic-related-list is configured, open that:
         if (this.flexipageId && this.cmpId) {
             const url =
                 '/lightning/cmp/force__dynamicRelatedListViewAll' +
@@ -112,18 +122,18 @@ export default class RelatedRecordsList extends NavigationMixin(LightningElement
                 `&force__cmpId=${this.cmpId}` +
                 `&force__recordId=${this.recordId}`;
             window.open(url, '_self');
-        } else {
-            // Fallback: standard related-list page
-            this[NavigationMixin.Navigate]({
-                type: 'standard__recordRelationshipPage',
-                attributes: {
-                    recordId: this.recordId,
-                    objectApiName: this.parentObjectApiName,
-                    relationshipApiName: this.childRelationshipName,
-                    actionName: 'view'
-                }
-            });
+            return;
         }
+        // Otherwise fall back to standard related-list page:
+        this[NavigationMixin.Navigate]({
+            type: 'standard__recordRelationshipPage',
+            attributes: {
+                recordId: this.recordId,
+                objectApiName: this.parentObjectApiName,
+                relationshipApiName: this.childRelationshipName,
+                actionName: 'view'
+            }
+        });
     }
 
     humanizeLabel(apiName) {

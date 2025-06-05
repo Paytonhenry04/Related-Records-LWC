@@ -6,86 +6,106 @@
     margin: 1rem 0;
 }
 
-/* 2) Card container styling: border, rounded corners, shadow, white bg */
+/* 2) Card container styling: 
+      - white background 
+      - light gray border all around 
+      - fully rounded corners 
+      - drop shadow 
+      - overflow hidden for rounded corners */
 .custom-card-container {
-    border: 2px solid #cccccc; /* changed from blue to grey */
-    border-radius: 1rem;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-    background-color: #ffffff;
+    background-color: #ffffff;                   /* white */
+    border: 1px solid #d5d8dc;                   /* light gray border */
+    border-radius: 1rem;                         /* rounded corners all around */
     overflow: hidden;
 }
 
-/* 3) Clickable header: light grey bg, black text, pointer cursor */
+/* 3) Collapsible header: 
+      - white background so it merges seamlessly
+      - bottom border to separate header from body 
+      - pointer cursor 
+      - flex layout for icon + title */
 .custom-card-header {
-    background-color: #e6e6e6de; /* changed from dark blue to grey */
+    background-color: #ffffff;                   /* match container’s white */
     padding: 0.75rem 1rem;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #d5d8dc;            /* line between header and body */
 }
 
-.custom-card-header:hover {
-    background-color: #c7c7c7; /* dark grey on hover */
+/* 3a) On hover, underline only the title text */
+.custom-card-header:hover .custom-card-title {
+    text-decoration: underline;
 }
 
+/* 4) Chevron icon styling */
+.collapse-icon {
+    margin-right: 0.5rem;
+    fill: #000000;
+}
+
+/* 5) Header text appearance */
 .custom-card-title {
-    color: #000000; /* changed text to black */
+    color: #000000;
     font-size: 1.25rem;
     font-weight: 400;
     font-family: Arial, sans-serif;
+    /* no text-decoration here by default */
 }
 
-/* 4) Card body padding */
+/* 6) Card body padding: white background (inherited from container) */
 .custom-card-body {
     padding: 0.75rem 1rem;
 }
 
-/* 5) Grid layout for two mini‐cards */
+/* 7) Grid layout for two mini-cards */
 .record-card-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem; /* space between cards */
 }
 
+/* 8) Each mini-card: 
+      - subtle border/shadow 
+      - white background 
+      - rounded corners */
 .record-card {
     background-color: #fdfdfd;
     border: 1px solid #d5d8dc;
     border-radius: 0.5rem;
     flex: 1 1 calc(50% - 1rem); /* two cards per row (minus gap) */
     padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
 }
 
-/* 6) Title link styling within mini‐card */
+/* 9) Title link inside mini-card */
 .record-card-link {
     font-size: 1rem;
     font-weight: 600;
-    color: #555555; /* changed link color from blue to medium grey */
+    color: #555555;
     text-decoration: none;
 }
-
 .record-card-link:hover {
     text-decoration: underline;
 }
 
-/* 7) Additional fields inside the mini‐card */
+/* 10) Additional fields inside the mini-card */
 .record-card-field {
     margin-top: 0.5rem;
 }
-
 .field-label {
     font-weight: 500;
     margin-right: 0.25rem;
     color: #566573;
 }
-
 .field-value {
     color: #17202a;
     word-wrap: break-word;
     white-space: normal;
 }
 
-/* 8) “No data” / error message: centered and italic */
+/* 11) “No data” / error message: centered and italic */
 .custom-no-data {
     text-align: center;
     font-style: italic;
@@ -93,7 +113,7 @@
     padding: 2rem 1rem;
 }
 
-/* 9) Responsive: single‐column on narrow screens */
+/* 12) Responsive: single-column on narrow screens */
 @media (max-width: 600px) {
     .record-card {
         flex: 1 1 100%;
