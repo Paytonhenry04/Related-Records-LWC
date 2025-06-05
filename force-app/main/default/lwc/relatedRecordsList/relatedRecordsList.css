@@ -14,7 +14,7 @@
       - overflow hidden for rounded corners */
 .custom-card-container {
     background-color: #ffffff;                   /* white */
-    border: 1px solid #d5d8dc;                   /* light gray border */
+    border: 1px solid #f1f1f1;                   /* light gray border */
     border-radius: 1rem;                         /* rounded corners all around */
     overflow: hidden;
 }
@@ -30,7 +30,7 @@
     cursor: pointer;
     display: flex;
     align-items: center;
-    border-bottom: 1px solid #d5d8dc;            /* line between header and body */
+    /* border-bottom: 1px solid #d5d8dc; */
 }
 
 /* 3a) On hover, underline only the title text */
@@ -112,6 +112,23 @@
     color: #566573;
     padding: 2rem 1rem;
 }
+
+.header-box {
+    display: flex;                      /* stretch children horizontally */
+    width: 100%;                        /* fill the full width of .custom-card-container */
+    align-items: center;
+    background-color: #f3f4f6;          /* light-gray background */
+    padding: 0.55rem 1rem;              /* same vertical/horizontal spacing */ 
+    border-radius: 0.3rem;
+    
+}
+
+
+/* (Optional) On hover, you can darken the box a bit: */
+.header-box:hover {
+    background-color: #e1e2e5;
+}
+
 
 /* 12) Responsive: single-column on narrow screens */
 @media (max-width: 600px) {

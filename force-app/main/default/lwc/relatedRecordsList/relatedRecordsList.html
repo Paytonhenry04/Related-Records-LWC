@@ -1,7 +1,8 @@
 <template>
     <div class="custom-card-container">
         <!-- Header: white background, dividing border below, contains chevron + title -->
-        <div class="custom-card-header">
+            <div class="custom-card-header">
+        <div class="header-box">
             <!-- Clicking this toggles collapse/expand -->
             <lightning-icon
                 icon-name={collapseIconName}
@@ -16,6 +17,8 @@
                 {cardTitle}
             </span>
         </div>
+            </div>
+
 
         <!-- Body: only rendered when isCollapsed = false -->
         <template if:false={isCollapsed}>
