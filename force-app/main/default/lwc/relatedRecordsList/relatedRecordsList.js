@@ -4,23 +4,22 @@ import { NavigationMixin } from 'lightning/navigation';
 
 export default class RelatedRecordsList extends NavigationMixin(LightningElement) {
     @api recordId;
-    @api parentObjectApiName;     // e.g. 'Company__c'
-    @api childObjectApiName;      // e.g. 'Product2'
-    @api lookupFieldApiName;      // e.g. 'Company__c'
-    @api childRelationshipName;   // e.g. 'Products__r'
-    @api fieldsList;              // e.g. 'Name,Status__c'
+    @api parentObjectApiName;
+    @api childObjectApiName;
+    @api lookupFieldApiName;
+    @api childRelationshipName;
+    @api fieldsList;
     @api recordLimit = 2;
-    @api flexipageId;             // e.g. 'Companies_Record_With_Success_Stories'
-    @api cmpId;                   // e.g. 'lst_dynamicRelatedList3'
+    @api flexipageId;
+    @api cmpId;
 
     @track tableData = [];
     @track error;
-    @track isCollapsed = false;   // whether the section is folded
+    @track isCollapsed = false;
 
-    // Compute the icon name (cannot do ternary inside the template)
     get collapseIconName() {
-        return this.isCollapsed 
-            ? 'utility:chevronright' 
+        return this.isCollapsed
+            ? 'utility:chevronright'
             : 'utility:chevrondown';
     }
 
@@ -30,9 +29,11 @@ export default class RelatedRecordsList extends NavigationMixin(LightningElement
             .map(f => f.trim())
             .filter(f => f);
     }
+
     get firstField() {
         return this.fieldsArray.length > 0 ? this.fieldsArray[0] : null;
     }
+
     get additionalFields() {
         return this.fieldsArray.length > 1
             ? this.fieldsArray.slice(1)
@@ -72,7 +73,8 @@ export default class RelatedRecordsList extends NavigationMixin(LightningElement
             !this.lookupFieldApiName ||
             !this.fieldsList
         ) {
-            this.error = 'Configuration error: check childObjectApiName, lookupFieldApiName, and fieldsList.';
+            this.error =
+                'Configuration error: check childObjectApiName, lookupFieldApiName, and fieldsList.';
             this.tableData = [];
             return;
         }
@@ -89,16 +91,34 @@ export default class RelatedRecordsList extends NavigationMixin(LightningElement
             const addFlds = this.additionalFields;
 
             this.tableData = results.map(rec => {
+                // Build an array of { label, value, apiName, isImage } for every field
+                const fields = addFlds.map(fld => {
+                    const rawValue = rec[fld];
+                    // If this field is the ContentDocument Id, we’ll render it as an <img>
+                    const isImageField = (fld === 'current_product_image__c');
+                    let displayValue = rawValue;
+
+                    if (isImageField && rawValue) {
+                        // Turn the ContentDocumentId into the download URL:
+                        displayValue = `/sfc/servlet.shepherd/document/download/${rawValue}`;
+                    }
+
+                    return {
+                        label: this.humanizeLabel(fld),
+                        value: displayValue,
+                        apiName: fld,
+                        isImage: isImageField && Boolean(rawValue)
+                    };
+                });
+
                 return {
                     Id: rec.Id,
                     title: rec[firstFld],
                     url: '/' + rec.Id,
-                    fields: addFlds.map(fld => ({
-                        label: this.humanizeLabel(fld),
-                        value: rec[fld]
-                    }))
+                    fields: fields
                 };
             });
+
             this.error = undefined;
         })
         .catch(err => {
@@ -114,7 +134,6 @@ export default class RelatedRecordsList extends NavigationMixin(LightningElement
     }
 
     handleHeaderClick() {
-        // If dynamic-related-list is configured, open that:
         if (this.flexipageId && this.cmpId) {
             const url =
                 '/lightning/cmp/force__dynamicRelatedListViewAll' +
@@ -124,7 +143,6 @@ export default class RelatedRecordsList extends NavigationMixin(LightningElement
             window.open(url, '_self');
             return;
         }
-        // Otherwise fall back to standard related-list page:
         this[NavigationMixin.Navigate]({
             type: 'standard__recordRelationshipPage',
             attributes: {
